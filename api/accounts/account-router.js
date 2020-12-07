@@ -1,7 +1,10 @@
 const express = require('express');
 const router = express.Router();
 const Account = require('./account-model')
+const accMiddlware = require('../middlewares/account-middlewares')
 
+
+// endpoints
 router.get('/', async (req, res) => {
     try {
         const data = await Account.getAll()
@@ -10,7 +13,7 @@ router.get('/', async (req, res) => {
         res.status(500).json({message: error.message})
     }
 })
-router.get('/:id', async (req, res) => {
+router.get('/:id', accMiddlware.validateId, async (req, res) => {
     try {
         const { id } = req.params
         const data = await Account.getById(id)
@@ -19,8 +22,9 @@ router.get('/:id', async (req, res) => {
         res.status(500).json({message: error.message})
     }
 })
-router.post('/', async (req, res) => {
+router.post('/', accMiddlware.validateEntries, async (req, res) => {
     try {
+        console.log(`inside post`)
         const account = req.body
         const data = await Account.create(account)
         res.json(data)
@@ -28,7 +32,7 @@ router.post('/', async (req, res) => {
         res.status(500).json({message: error.message})
     }
 })
-router.put('/:id', async (req, res) => {
+router.put('/:id', accMiddlware.validateId, accMiddlware.validateEntries, async (req, res) => {
     try {
         const { id } = req.params
         const updatedAccount = req.body
@@ -38,7 +42,7 @@ router.put('/:id', async (req, res) => {
         res.status(500).json({message: error.message})
     }
 })
-router.delete('/:id', async (req, res) => {
+router.delete('/:id', accMiddlware.validateId, async (req, res) => {
     try {
         const { id } = req.params
         await Account.delete(id)
